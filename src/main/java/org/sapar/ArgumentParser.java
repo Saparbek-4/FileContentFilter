@@ -3,74 +3,59 @@ package org.sapar;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Command-line argument parser that supports:
+ * - Output directory (-o)
+ * - File name prefix (-p)
+ * - Append mode (-a)
+ * - Short or full statistics (-s / -f)
+ * - List of input file names
+ */
 public class ArgumentParser {
+
     private boolean shortStats = false;
     private boolean fullStats = false;
     private boolean appendMode = false;
     private String outputPath = "";
     private String prefix = "";
-    private List<String> inputFiles = new ArrayList<>();
+    private final List<String> inputFiles = new ArrayList<>();
 
     public ArgumentParser(String[] args) {
+        System.out.println("Parsing arguments...");
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
-                case "-s":
-                    shortStats = true;
-                    break;
-                case "-f":
-                    fullStats = true;
-                    break;
-                case "-a":
-                    appendMode = true;
-                    break;
-                case "-o":
-                    if (i + 1 < args.length) {
-                        outputPath = args[++i];
-                    } else {
-                        System.err.println("Error: Missing value for -o flag.");
-                    }
-                    break;
-                case "-p":
-                    if (i + 1 < args.length) {
-                        prefix = args[++i];
-                    } else {
-                        System.err.println("Error: Missing value for -p flag.");
-                    }
-                    break;
-                default:
-                    // Anything else is considered a file
-                    inputFiles.add(args[i]);
-                    break;
+                case "-s" -> shortStats = true;
+                case "-f" -> fullStats = true;
+                case "-a" -> appendMode = true;
+                case "-o" -> {
+                    if (i + 1 < args.length) outputPath = args[++i];
+                    else System.err.println("Missing value after -o (output path).");
+                }
+                case "-p" -> {
+                    if (i + 1 < args.length) prefix = args[++i];
+                    else System.err.println("Missing value after -p (file prefix).");
+                }
+                default -> inputFiles.add(args[i]);
             }
         }
 
-        // Validation: At least one stat mode should be selected
+        // Default if nothing specified
         if (!shortStats && !fullStats) {
-            shortStats = true; // Default to short stats if none provided
+            shortStats = true;
         }
+
+        System.out.println("Input files to process: " + inputFiles);
     }
 
-    public boolean isShortStats() {
-        return shortStats;
-    }
+    public boolean isShortStats() { return shortStats; }
 
-    public boolean isFullStats() {
-        return fullStats;
-    }
+    public boolean isFullStats() { return fullStats; }
 
-    public boolean isAppendMode() {
-        return appendMode;
-    }
+    public boolean isAppendMode() { return appendMode; }
 
-    public String getOutputPath() {
-        return outputPath;
-    }
+    public String getOutputPath() { return outputPath; }
 
-    public String getPrefix() {
-        return prefix;
-    }
+    public String getPrefix() { return prefix; }
 
-    public List<String> getInputFiles() {
-        return inputFiles;
-    }
+    public List<String> getInputFiles() { return inputFiles; }
 }

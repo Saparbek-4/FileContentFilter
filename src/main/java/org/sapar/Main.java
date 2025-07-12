@@ -1,19 +1,24 @@
 package org.sapar;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 
+/**
+ * Entry point of the FileContentFilter application.
+ * Written with ❤️ by Saparbek
+ */
 public class Main {
     public static void main(String[] args) {
+
+        System.out.println("Starting FileContentFilter...");
+
         ArgumentParser parser = new ArgumentParser(args);
         FileWriterManager writerManager = new FileWriterManager(
                 parser.getOutputPath(),
                 parser.getPrefix(),
                 parser.isAppendMode()
         );
-        StatisticsCollector statsCollector = new StatisticsCollector();
+        StatisticsCollector stats = new StatisticsCollector();
 
         List<String> inputFiles = parser.getInputFiles();
         if (inputFiles.isEmpty()) {
@@ -21,46 +26,41 @@ public class Main {
             System.exit(1);
         }
 
+        // Main file loop
         for (String fileName : inputFiles) {
+            System.out.println("Reading from file: " + fileName);
             try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     line = line.trim();
-                    if (line.isEmpty()) {
-                        continue; // skip empty lines
-                    }
+                    if (line.isEmpty()) continue;
+
                     try {
                         if (DataTypeDetector.isInteger(line)) {
                             writerManager.writeInteger(line);
-                            statsCollector.recordInteger(Long.parseLong(line));
+                            stats.recordInteger(Long.parseLong(line));
                         } else if (DataTypeDetector.isFloat(line)) {
                             writerManager.writeFloat(line);
-                            statsCollector.recordFloat(Double.parseDouble(line));
+                            stats.recordFloat(Double.parseDouble(line));
                         } else {
                             writerManager.writeString(line);
-                            statsCollector.recordString(line);
+                            stats.recordString(line);
                         }
-                    } catch (IOException e) {
-                        System.err.println("Error writing line: \"" + line + "\" from file " + fileName + " - " + e.getMessage());
-                        // Continue processing other lines
+                    } catch (IOException ioEx) {
+                        System.err.println("Failed to write line: \"" + line + "\" — " + ioEx.getMessage());
                     }
                 }
-            } catch (IOException e) {
-                System.err.println("Error reading file: " + fileName + " - " + e.getMessage());
-                // Continue processing other files
+            } catch (IOException ex) {
+                System.err.println("Cannot read file: " + fileName + " — " + ex.getMessage());
             }
         }
 
-        // Close all writers
         writerManager.closeAll();
 
-        // Print statistics
-        if (parser.isShortStats()) {
-            statsCollector.printShortStatistics();
-        } else if (parser.isFullStats()) {
-            statsCollector.printFullStatistics();
-        }
+        System.out.println("\nStatistics:");
+        if (parser.isShortStats()) stats.printShortStatistics();
+        else stats.printFullStatistics();
 
-        System.out.println("Processing completed.");
+        System.out.println("\nDone. Filtered output written in txt files");
     }
 }

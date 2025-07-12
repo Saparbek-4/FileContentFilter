@@ -9,7 +9,6 @@ public class FileWriterManager {
     private BufferedWriter intWriter = null;
     private BufferedWriter floatWriter = null;
     private BufferedWriter stringWriter = null;
-
     private String basePath;
     private String prefix;
     private boolean appendMode;

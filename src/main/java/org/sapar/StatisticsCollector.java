@@ -18,7 +18,7 @@ public class StatisticsCollector {
     private int minStringLength = Integer.MAX_VALUE;
     private int maxStringLength = Integer.MIN_VALUE;
 
-    // Record
+    // Records
     public void recordInteger(long value) {
         intCount++;
         intMin = Math.min(intMin, value);
@@ -40,7 +40,7 @@ public class StatisticsCollector {
         maxStringLength = Math.max(maxStringLength, len);
     }
 
-    // Print
+    // Prints
     public void printShortStatistics() {
         System.out.println("=== Short Statistics ===");
         System.out.println("Integers count: " + intCount);
